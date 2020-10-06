@@ -11,59 +11,75 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
+    //Number of seconds displayed on the stopwatch.
     private int seconds = 0;
+    //Is the stopwatch running?
     private boolean running=false;
+    private boolean wasRunning;
 
-    Button start_button;
-
+    Button startButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        start_button = (Button) findViewById(R.id.start_button);
-
+        setContentView(R.layout.activity_main );
         if (savedInstanceState != null) {
             seconds = savedInstanceState.getInt("seconds");
             running = savedInstanceState.getBoolean("running");
+            wasRunning = savedInstanceState.getBoolean("wasRunning");
         }
-
         runTimer();
-
+        startButton =  findViewById(R.id.start_button);
+        btnText();
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        String sb = start_button.getText().toString();
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("seconds", seconds);
         savedInstanceState.putBoolean("running", running);
-        savedInstanceState.putString(sb, start_button);
+        savedInstanceState.putBoolean("wasRunning", wasRunning);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        wasRunning = running;
+        if (wasRunning) {
+            running = true;
+        }
+        btnText();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasRunning) {
+            running = true;
+        }
+        btnText();
+    }
+
+    //Start the stopwatch running when the Start button is clicked.
     public void onClickStart(View view) {
         running = !running;
-        if (running) {
-            start_button.setText("Stop");
-        } else {
-            start_button.setText("Start");
-        }
+        btnText();
     }
-//
+
+    //Stop the stopwatch running when the Stop button is clicked.
 //    public void onClickStop(View view) {
 //        running = false;
+//        btnText();
 //    }
 
+    //Reset the stopwatch when the Reset button is clicked.
     public void onClickReset(View view) {
         running = false;
         seconds = 0;
-        start_button.setText("Start");
+        btnText();
     }
 
-
-
+    //Sets the number of seconds on the timer.
     private void runTimer() {
         final TextView timeView = (TextView)findViewById(R.id.time_view);
         final Handler handler = new Handler();
@@ -83,6 +99,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void btnText() {
+        if (running) {
+            startButton.setText("Stop");
+        } else {
+            startButton.setText("Start");
+        }
+    }
 }
-
-
